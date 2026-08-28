@@ -1,7 +1,7 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// خادم ويب وهمي لإبقاء خدمة Render نشطة بلا توقف
+// خادم ويب وهمي لإبقاء Render نشطاً
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.write('Minecraft Bot is Online 24/7!');
@@ -9,7 +9,7 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 3000);
 
 let bot = null;
-const BOT_PASSWORD = 'amirBot123456'; // كلمة المرور المسجلة
+const BOT_PASSWORD = 'amirBot123456'; // كلمة المرور الخاصة بك
 
 function createBot() {
   if (bot) {
@@ -22,12 +22,11 @@ function createBot() {
     host: 'amirKINGSMP.aternos.me',
     port: 31310,
     username: 'amirKING_BOT',
-    version: '1.21.11' // تأكد من مطابقة هذا الإصدار تماماً لإصدار سيرفرك
+    version: '1.20.1' // تأكد من مطابقة إصدار سيرفرك
   });
 
-  // تسجيل الدخول فوراً عند الاتصال
   bot.once('spawn', () => {
-    console.log('✅ تم دخول البوت واستقراره بنجاح!');
+    console.log('✅ تم دخول البوت بنجاح، جاري تسجيل الدخول...');
     
     setTimeout(() => {
       if (bot) {
@@ -35,17 +34,20 @@ function createBot() {
       }
     }, 1500);
 
-    // نظام Anti-AFK متطور ومستمر (حركة عشوائية خفيفة لمنع الطرد نهائياً)
+    // نظام Anti-AFK عشوائي ومتطور لمنع الرصد والطرد
     setInterval(() => {
       if (bot && bot.player) {
-        // تبديل اتجاه النظر خطوة بسيطة أو القفز لمنع رصد الخمول
-        bot.setControlState('jump', true);
-        setTimeout(() => bot.setControlState('jump', false), 400);
+        const actions = ['jump', 'forward', 'back'];
+        const randomAction = actions[Math.floor(Math.random() * actions.length)];
+        
+        bot.setControlState(randomAction, true);
+        setTimeout(() => {
+          bot.setControlState(randomAction, false);
+        }, 600);
       }
-    }, 25000); // كل 25 ثانية
+    }, 20000); // يتخذ إجراء عشوائي كل 20 ثانية
   });
 
-  // الرد الفعلي لو طالب النظام بتسجيل الدخول بأي وقت
   bot.on('message', (message) => {
     const text = message.toString();
     if (text.includes('/login') || text.includes('login')) {
@@ -53,27 +55,26 @@ function createBot() {
     }
   });
 
-  // إعادة الاتصال الذكي فوراً إذا طرد أو خرج البوت
   bot.on('kicked', (reason) => {
     console.log(`⚠️ تم طرد البوت، السبب: ${reason}`);
-    attemptReconnect();
+    reconnect();
   });
 
   bot.on('end', () => {
-    console.log('🔌 انقطع الاتصال بالخادم، جاري العودة...');
-    attemptReconnect();
+    console.log('🔌 انقطع الاتصال، جاري إعادة الدخول فوراً...');
+    reconnect();
   });
 
   bot.on('error', (err) => {
-    console.log(`❌ خطأ تقني: ${err.message}`);
+    console.log(`❌ خطأ: ${err.message}`);
   });
 }
 
-function attemptReconnect() {
+function reconnect() {
   setTimeout(() => {
-    console.log('🔄 محاولة الاتصال بالسيرفر مجدداً الآن...');
+    console.log('🔄 محاولة الاتصال مجدداً...');
     createBot();
-  }, 10000); // ينتظر 10 ثوانٍ فقط ثم يعاود الدخول تلقائياً
+  }, 8000); // إعادة اتصال سريعة جداً خلال 8 ثوانٍ فقط
 }
 
 createBot();
