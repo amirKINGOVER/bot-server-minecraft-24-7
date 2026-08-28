@@ -22,7 +22,7 @@ function createBot() {
     host: 'amirKINGSMP.aternos.me',
     port: 31310,
     username: 'amirKING_BOT',
-    version: '1.20.1' // تأكد من مطابقة هذا الإصدار تماماً لإصدار سيرفرك
+    version: '1.21.11' // تأكد من مطابقة هذا الإصدار تماماً لإصدار سيرفرك
   });
 
   // تسجيل الدخول فوراً عند الاتصال
