@@ -9,7 +9,7 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 3000);
 
 let bot = null;
-const BOT_PASSWORD = 'amirBot123456'; // اكتب هنا كلمة السر الخاصة بالبوت
+const BOT_PASSWORD = 'amirBot123456'; // كلمة المرور الخاصة بالبوت
 
 function createBot() {
   if (bot) {
@@ -25,16 +25,26 @@ function createBot() {
     version: false 
   });
 
-  bot.on('spawn', () => {
-    console.log('تم دخول البوت، جاري محاولة تسجيل الدخول تلقائياً...');
-
-    // محاولة التسجيل والدخول بعد ثانية من الدخول لتفادي الطرد بـ AuthMe
+  // تسجيل الدخول فور الاتصال بالسيرفر وقبل حتى اكتمال الـ Spawn لتفادي الطرد
+  bot.once('login', () => {
+    console.log('تم الاتصال بالسيرفر، جاري إرسال بيانات الدخول...');
     setTimeout(() => {
       if (bot) {
         bot.chat(`/register ${BOT_PASSWORD} ${BOT_PASSWORD}`);
         bot.chat(`/login ${BOT_PASSWORD}`);
       }
-    }, 1500);
+    }, 500);
+  });
+
+  bot.on('spawn', () => {
+    console.log('تم دخول البوت واستقراره في السيرفر بنجاح!');
+
+    // إرسال أمر الـ login مرة أخرى للاحتياط بعد الدخول الكامل
+    setTimeout(() => {
+      if (bot) {
+        bot.chat(`/login ${BOT_PASSWORD}`);
+      }
+    }, 1000);
 
     // القفز التلقائي لمنع الطرد بسبب الخمول (Anti-AFK)
     setInterval(() => {
@@ -42,15 +52,15 @@ function createBot() {
         bot.setControlState('jump', true);
         setTimeout(() => bot.setControlState('jump', false), 500);
       }
-    }, 40000); 
+    }, 30000); 
   });
 
-  // الاستجابة التلقائية إذا طلب AuthMe كلمة السر في الشات
+  // الاستجابة الفورية لأي رسالة تطلب تسجيل الدخول من AuthMe
   bot.on('message', (message) => {
     const msgText = message.toString();
-    if (msgText.includes('/login')) {
+    if (msgText.includes('/login') || msgText.includes('login')) {
       bot.chat(`/login ${BOT_PASSWORD}`);
-    } else if (msgText.includes('/register')) {
+    } else if (msgText.includes('/register') || msgText.includes('register')) {
       bot.chat(`/register ${BOT_PASSWORD} ${BOT_PASSWORD}`);
     }
   });
@@ -74,7 +84,7 @@ function reconnect() {
   setTimeout(() => {
     console.log('إعادة الاتصال الآن...');
     createBot();
-  }, 25000);
+  }, 15000); // محاولة إعادة الاتصال خلال 15 ثانية فقط
 }
 
 createBot();
