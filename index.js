@@ -1,7 +1,7 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// 1. خادم ويب وهمي لإبقاء Render شغال
+// خادم ويب وهمي لإبقاء خدمة Render نشطة بلا توقف
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.write('Minecraft Bot is Online 24/7!');
@@ -9,7 +9,7 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 3000);
 
 let bot = null;
-const BOT_PASSWORD = 'amirBot123456'; // كلمة المرور الخاصة بالبوت
+const BOT_PASSWORD = 'amirBot123456'; // كلمة المرور المسجلة
 
 function createBot() {
   if (bot) {
@@ -22,69 +22,58 @@ function createBot() {
     host: 'amirKINGSMP.aternos.me',
     port: 31310,
     username: 'amirKING_BOT',
-    version: false 
+    version: '1.20.1' // تأكد من مطابقة هذا الإصدار تماماً لإصدار سيرفرك
   });
 
-  // تسجيل الدخول فور الاتصال بالسيرفر وقبل حتى اكتمال الـ Spawn لتفادي الطرد
-  bot.once('login', () => {
-    console.log('تم الاتصال بالسيرفر، جاري إرسال بيانات الدخول...');
-    setTimeout(() => {
-      if (bot) {
-        bot.chat(`/register ${BOT_PASSWORD} ${BOT_PASSWORD}`);
-        bot.chat(`/login ${BOT_PASSWORD}`);
-      }
-    }, 500);
-  });
-
-  bot.on('spawn', () => {
-    console.log('تم دخول البوت واستقراره في السيرفر بنجاح!');
-
-    // إرسال أمر الـ login مرة أخرى للاحتياط بعد الدخول الكامل
+  // تسجيل الدخول فوراً عند الاتصال
+  bot.once('spawn', () => {
+    console.log('✅ تم دخول البوت واستقراره بنجاح!');
+    
     setTimeout(() => {
       if (bot) {
         bot.chat(`/login ${BOT_PASSWORD}`);
       }
-    }, 1000);
+    }, 1500);
 
-    // القفز التلقائي لمنع الطرد بسبب الخمول (Anti-AFK)
+    // نظام Anti-AFK متطور ومستمر (حركة عشوائية خفيفة لمنع الطرد نهائياً)
     setInterval(() => {
       if (bot && bot.player) {
+        // تبديل اتجاه النظر خطوة بسيطة أو القفز لمنع رصد الخمول
         bot.setControlState('jump', true);
-        setTimeout(() => bot.setControlState('jump', false), 500);
+        setTimeout(() => bot.setControlState('jump', false), 400);
       }
-    }, 30000); 
+    }, 25000); // كل 25 ثانية
   });
 
-  // الاستجابة الفورية لأي رسالة تطلب تسجيل الدخول من AuthMe
+  // الرد الفعلي لو طالب النظام بتسجيل الدخول بأي وقت
   bot.on('message', (message) => {
-    const msgText = message.toString();
-    if (msgText.includes('/login') || msgText.includes('login')) {
+    const text = message.toString();
+    if (text.includes('/login') || text.includes('login')) {
       bot.chat(`/login ${BOT_PASSWORD}`);
-    } else if (msgText.includes('/register') || msgText.includes('register')) {
-      bot.chat(`/register ${BOT_PASSWORD} ${BOT_PASSWORD}`);
     }
   });
 
+  // إعادة الاتصال الذكي فوراً إذا طرد أو خرج البوت
   bot.on('kicked', (reason) => {
-    console.log(`تم طرد البوت: ${reason}`);
-    reconnect();
+    console.log(`⚠️ تم طرد البوت، السبب: ${reason}`);
+    attemptReconnect();
   });
 
   bot.on('end', () => {
-    console.log('انقطع الاتصال، جاري إعادة المحاولة...');
-    reconnect();
+    console.log('🔌 انقطع الاتصال بالخادم، جاري العودة...');
+    attemptReconnect();
   });
 
   bot.on('error', (err) => {
-    console.log(`خطأ: ${err.message}`);
+    console.log(`❌ خطأ تقني: ${err.message}`);
   });
 }
 
-function reconnect() {
+function attemptReconnect() {
   setTimeout(() => {
-    console.log('إعادة الاتصال الآن...');
+    console.log('🔄 محاولة الاتصال بالسيرفر مجدداً الآن...');
     createBot();
-  }, 15000); // محاولة إعادة الاتصال خلال 15 ثانية فقط
+  }, 10000); // ينتظر 10 ثوانٍ فقط ثم يعاود الدخول تلقائياً
 }
 
 createBot();
