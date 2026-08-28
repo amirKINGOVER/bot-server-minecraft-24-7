@@ -1,13 +1,12 @@
 {
-  "name": "bot-server-minecraft-24-7",
+  "name": "minecraft-bot-24-7",
   "version": "1.0.0",
-  "description": "",
+  "description": "Bot to keep Aternos online",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "discord.js": "^14.14.1",
     "mineflayer": "^4.20.0"
   }
 }
