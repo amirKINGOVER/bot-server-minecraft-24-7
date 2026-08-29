@@ -1,15 +1,15 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// خادم ويب وهمي لإبقاء Render نشطاً 24/7
+// خادم وهمي لإبقاء البوت نشطاً على Render طوال اليوم
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.write('Minecraft Bot is Online 24/7!');
+  res.write('Bot is running 24/7!');
   res.end();
 }).listen(process.env.PORT || 3000);
 
 let bot = null;
-const BOT_PASSWORD = 'amirBot123456'; // كلمة المرور الخاصة بسيرفرك
+const BOT_PASSWORD = 'amirBot123456'; // استبدل كلمة المرور إذا كانت مختلفة
 
 function createBot() {
   if (bot) {
@@ -18,7 +18,7 @@ function createBot() {
     } catch (e) {}
   }
 
-  // استخدام عنوان IP والـ Port الجديدين مع إصدار 1.21.1
+  // إنشاء اتصال البوت بالبيانات الصحيحة والسيرفر الجديد
   bot = mineflayer.createBot({
     host: 'amirKINGSMP-xbj9.aternos.me',
     port: 48340,
@@ -27,16 +27,16 @@ function createBot() {
   });
 
   bot.once('spawn', () => {
-    console.log('✅ تم دخول البوت بنجاح، جاري تسجيل الدخول...');
+    console.log('✅ تم دخول البوت بنجاح إلى السيرفر!');
     
-    // تسجيل الدخول تلقائياً بعد دخول السيرفر
+    // تسجيل الدخول بعد دخول السيرفر بثانية ونصف
     setTimeout(() => {
       if (bot) {
         bot.chat(`/login ${BOT_PASSWORD}`);
       }
     }, 1500);
 
-    // نظام Anti-AFK عشوائي ومتطور لمنع رصد البوت وطرده
+    // نظام الحركة العشوائية لمنع الطرد بسبب الـ AFK
     setInterval(() => {
       if (bot && bot.player) {
         const actions = ['jump', 'forward', 'back'];
@@ -45,9 +45,9 @@ function createBot() {
         bot.setControlState(randomAction, true);
         setTimeout(() => {
           bot.setControlState(randomAction, false);
-        }, 600);
+        }, 500);
       }
-    }, 20000); // تنفيذ حركة عشوائية كل 20 ثانية
+    }, 25000); // تحرك كل 25 ثانية
   });
 
   bot.on('message', (message) => {
@@ -63,20 +63,20 @@ function createBot() {
   });
 
   bot.on('end', () => {
-    console.log('🔌 انقطع الاتصال، جاري إعادة الدخول فوراً...');
+    console.log('🔌 انقطع الاتصال، جاري إعادة المحاولة...');
     reconnect();
   });
 
   bot.on('error', (err) => {
-    console.log(`❌ خطأ: ${err.message}`);
+    console.log(`❌ خطأ في الاتصال: ${err.message}`);
   });
 }
 
 function reconnect() {
   setTimeout(() => {
-    console.log('🔄 محاولة الاتصال مجدداً...');
+    console.log('🔄 إعادة محاولة الدخول...');
     createBot();
-  }, 8000); // إعادة محاولة الدخول خلال 8 ثوانٍ فقط لتجنب إغلاق السيرفر
+  }, 10000); // إعادة المحاولة بعد 10 ثوانٍ
 }
 
 createBot();
