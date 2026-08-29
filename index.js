@@ -23,7 +23,7 @@ function createBot() {
     host: 'hypixel-cixC.aternos.me',
     port: 55790,
     username: 'hypixelMC',
-    version: '2.26'
+    version: '1.21.11'
   });
 
   bot.once('spawn', () => {
