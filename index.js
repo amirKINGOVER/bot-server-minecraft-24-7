@@ -20,7 +20,7 @@ function createBot() {
 
   // إنشاء اتصال البوت بالبيانات الصحيحة والسيرفر الجديد
   bot = mineflayer.createBot({
-    host: 'amirKINGSMP-xbj9.aternos.me',
+    host: 'hypixel-cixC.aternos.me',
     port: 48340,
     username: 'amirKING_BOT',
     version: '1.21.11'
