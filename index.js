@@ -1,15 +1,15 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// خادم وهمي لإبقاء البوت نشطاً على Render طوال اليوم
+// خادم ويب وهمي لتشغيل البوت 24/7 على Render
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.write('Bot is running 24/7!');
+  res.write('Bot is active!');
   res.end();
 }).listen(process.env.PORT || 3000);
 
 let bot = null;
-const BOT_PASSWORD = 'amirBot123456'; // استبدل كلمة المرور إذا كانت مختلفة
+const BOT_PASSWORD = 'amirBot123456'; // كلمة المرور الخاصة بك
 
 function createBot() {
   if (bot) {
@@ -18,41 +18,39 @@ function createBot() {
     } catch (e) {}
   }
 
-  // إنشاء اتصال البوت بالبيانات الصحيحة والسيرفر الجديد
+  // إنشاء الاتصال بالسيرفر الجديد والإصدار
   bot = mineflayer.createBot({
     host: 'hypixel-cixC.aternos.me',
     port: 55790,
-    username: 'hypixelMC',
-    version: '1.21.11'
+    username: 'amirKING_BOT',
+    version: '1.21.11' // غيرها إلى رقم إصدار سيرفرك الحالي بدقة إذا تغير
   });
 
-  bot.once('spawn', () => {
-    console.log('✅ تم دخول البوت بنجاح إلى السيرفر!');
+  // تسجيل الدخول فوراً بمجرد ظهور رسالة أو دخول السيرفر
+  bot.on('spawn', () => {
+    console.log('🤖 تم الاتصال بنجاح، جاري تسجيل الدخول...');
     
-    // تسجيل الدخول بعد دخول السيرفر بثانية ونصف
+    // تنفيذ أمر الدخول بسرعة لتجنب الطرد
     setTimeout(() => {
       if (bot) {
         bot.chat(`/login ${BOT_PASSWORD}`);
       }
-    }, 1500);
+    }, 500); // تقليل وقت الانتظار إلى نصف ثانية فقط
 
-    // نظام الحركة العشوائية لمنع الطرد بسبب الـ AFK
+    // حركة خفيفة لمنع الطرد بسبب الخمول (AFK)
     setInterval(() => {
       if (bot && bot.player) {
-        const actions = ['jump', 'forward', 'back'];
-        const randomAction = actions[Math.floor(Math.random() * actions.length)];
-        
-        bot.setControlState(randomAction, true);
+        bot.setControlState('jump', true);
         setTimeout(() => {
-          bot.setControlState(randomAction, false);
-        }, 500);
+          bot.setControlState('jump', false);
+        }, 300);
       }
-    }, 25000); // تحرك كل 25 ثانية
+    }, 30000); // كل 30 ثانية
   });
 
   bot.on('message', (message) => {
     const text = message.toString();
-    if (text.includes('/login') || text.includes('login')) {
+    if (text.includes('/login') || text.includes('register')) {
       bot.chat(`/login ${BOT_PASSWORD}`);
     }
   });
@@ -63,20 +61,19 @@ function createBot() {
   });
 
   bot.on('end', () => {
-    console.log('🔌 انقطع الاتصال، جاري إعادة المحاولة...');
+    console.log('🔌 انقطع الاتصال، جاري إعادة الدخول السريع...');
     reconnect();
   });
 
   bot.on('error', (err) => {
-    console.log(`❌ خطأ في الاتصال: ${err.message}`);
+    console.log(`❌ خطأ: ${err.message}`);
   });
 }
 
 function reconnect() {
   setTimeout(() => {
-    console.log('🔄 إعادة محاولة الدخول...');
     createBot();
-  }, 10000); // إعادة المحاولة بعد 10 ثوانٍ
+  }, 4000); // تقليل وقت إعادة المحاولة إلى 4 ثوانٍ فقط ليدخل بسرعة
 }
 
 createBot();
